@@ -1,0 +1,31 @@
+hadoop-Befehle
+
+jps - Zeigt Prozesse an
+namenode-format - Formatiert namenode
+
+hdfs-site.xml (Beispiel)
+=============================
+<property>
+    <name>dfs.namenode.name.dir</name>
+    <value>/usr/local/hadoop/name</value>
+</property>
+<property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:/usr/local/hadoop/data</value>
+</property>
+=============================
+
+JPS-Nodes
+
+2287 TaskTracker  
+2149 JobTracker  
+1938 DataNode  
+2085 SecondaryNameNode  
+2349 Jps  
+1788 NameNode  
+
+====================
+
+Wenn Resource-Manager nicht startet
+
+export HADOOP_OPTS="--add-modules java.activation"
