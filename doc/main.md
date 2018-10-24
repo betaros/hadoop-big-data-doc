@@ -1,5 +1,33 @@
 # Big Data
 
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Big Data](#big-data)
+	- [Installation HDFS](#installation-hdfs)
+	- [Konfiguration](#konfiguration)
+		- [Single-Node](#single-node)
+			- [SSH](#ssh)
+			- [etc/hadoop/core-site.xml](#etchadoopcore-sitexml)
+			- [etc/hadoop/hdfs-site.xml](#etchadoophdfs-sitexml)
+			- [etc/hadoop/hadoop-env.sh](#etchadoophadoop-envsh)
+			- [etc/hadoop/mapred-site.xml](#etchadoopmapred-sitexml)
+			- [etc/hadoop/yarn-env.sh](#etchadoopyarn-envsh)
+			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
+			- [Namenode einrichten](#namenode-einrichten)
+		- [Cluster](#cluster)
+			- [/etc/hosts](#etchosts)
+			- [etc/hadoop/core-site.xml](#etchadoopcore-sitexml)
+			- [etc/hadoop/hdfs-site.xml](#etchadoophdfs-sitexml)
+			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
+			- [etc/hadoop/slaves](#etchadoopslaves)
+		- [Bedienung](#bedienung)
+			- [Prozesse](#prozesse)
+			- [Starten](#starten)
+			- [Stoppen](#stoppen)
+	- [Quellen](#quellen)
+
+<!-- /TOC -->
+
 ## Installation HDFS
 - Virtuelle Maschine mit Ubuntu 18.04 installieren
   - Username: hadoop
@@ -85,6 +113,7 @@ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
 
 #### etc/hadoop/yarn-env.sh
 - Bugfix für JDK 9+
+- siehe Bug [JIRA Hadoop](https://issues.apache.org/jira/browse/HADOOP-14978)
 
 ```bash
 export YARN_RESOURCEMANAGER_OPTS="--add-modules java.activation"
@@ -113,6 +142,15 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
   - ```hdfs dfs -put etc/hadoop input```
 
 ### Cluster
+#### /etc/hosts
+- Adressen für Master und Slaves angeben
+
+```bash
+192.168.178.100 master
+192.168.178.101 slave1
+192.168.178.102 slave2
+```
+
 #### etc/hadoop/core-site.xml
 ```bash
 <configuration>
@@ -217,3 +255,8 @@ stop-yarn.sh
 ```bash
 stop-dfs.sh
 ```
+
+## Quellen
+- https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
+- https://hadoop.apache.org/docs/r2.9.1/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html
+- https://hadoop.apache.org/docs/r2.9.1/hadoop-project-dist/hadoop-common/ClusterSetup.html
