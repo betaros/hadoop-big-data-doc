@@ -50,7 +50,7 @@ $ chmod 0600 ~/.ssh/authorized_keys
 ```bash
 <configuration>
     <property>
-        <name>dfs.namenode.dir</name>
+        <name>dfs.namenode.name.dir</name>
         <value>file:/opt/hadoop-data/name</value>
     </property>
 
@@ -111,6 +111,72 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
   - ```hdfs dfs -mkdir /user/hadoop```
 - Input Dateien kopieren
   - ```hdfs dfs -put etc/hadoop input```
+
+### Cluster
+#### etc/hadoop/core-site.xml
+```bash
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://master:9000</value>
+    </property>
+</configuration>
+```
+
+#### etc/hadoop/hdfs-site.xml
+- Replikationen auf Anzahl der Slaves erhöhen
+
+```bash
+<configuration>
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>file:/opt/hadoop-data/name</value>
+    </property>
+
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>file:/opt/hadoop-data/data</value>
+    </property>
+
+    <property>
+        <name>dfs.replication</name>
+        <value>2</value>
+    </property>
+</configuration>
+```
+
+#### etc/hadoop/yarn-site.xml
+- Adressen für Slaves anpassen
+
+```bash
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+
+    <property>
+        <name>yarn.resourcemanager.address</name>
+        <value>master:port</value>
+    </property>
+
+    <property>
+        <name>yarn.resourcemanager.scheduler.address</name>
+        <value>master:port</value>
+    </property>
+
+    <property>
+        <name>yarn.resourcemanager.resource-tracker.address</name>
+        <value>master:port</value>
+    </property>
+</configuration>
+```
+
+#### etc/hadoop/slaves
+```bash
+slave1
+slave2
+```
 
 ### Bedienung
 
