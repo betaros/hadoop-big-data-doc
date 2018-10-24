@@ -28,4 +28,9 @@ JPS-Nodes
 
 Wenn Resource-Manager nicht startet
 
-export HADOOP_OPTS="--add-modules java.activation"
+https://issues.apache.org/jira/browse/HADOOP-14978
+
+/opt/hadoop/etc/hadoop/yarn-env.sh
+
+export YARN_RESOURCEMANAGER_OPTS="--add-modules java.activation"
+export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
