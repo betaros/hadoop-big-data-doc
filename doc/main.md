@@ -73,12 +73,32 @@ $ chmod 0600 ~/.ssh/authorized_keys
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
 ```
 
+#### etc/hadoop/mapred-site.xml
+```bash
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+</configuration>
+```
+
 #### etc/hadoop/yarn-env.sh
 - Bugfix für JDK 9+
 
 ```bash
 export YARN_RESOURCEMANAGER_OPTS="--add-modules java.activation"
 export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
+```
+
+#### etc/hadoop/yarn-site.xml
+```bash
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+</configuration>
 ```
 
 #### Namenode einrichten
