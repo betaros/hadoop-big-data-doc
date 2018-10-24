@@ -130,22 +130,24 @@ jps
 4430 NodeManager
 ```
 
-#### DFS
-- Starten
+#### Starten
+- DFS Starten
 ```bash
 start-dfs.sh
 ```
-- Stoppen
-```bash
-stop-dfs.sh
-```
 
-#### YARN
-- Starten
+- YARN Starten
 ```bash
 start-yarn.sh
 ```
-- Stoppen
+
+#### Stoppen
+- YARN Stoppen
 ```bash
 stop-yarn.sh
+```
+
+- DFS Stoppen
+```bash
+stop-dfs.sh
 ```
