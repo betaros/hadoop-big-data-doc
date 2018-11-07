@@ -52,6 +52,35 @@ master   | 192.168.178.100
 slave1   | 192.168.178.101
 slave2   | 192.168.178.102
 
+### IPv6 ausschalten
+Um Hadoop nutzen zu können muss IPv6 deaktiviert werden. Dies hat unter Ubuntu 18.04 einen Bug, den man berücksichtigen muss.
+
+1. /etc/sysctl.conf Zeilen zum Ende hinzufügen
+```bash
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+```
+
+2. Konfiguration neu laden
+```bash
+sudo sysctl -p
+```
+
+3. Bug beheben, dass die Konfiguration nach dem Neustart noch vorhanden ist. Dazu muss die Datei /etc/rc.local erstellt werden, mit folgenden Inhalt:
+```bash
+#!/bin/bash
+# /etc/rc.local
+# Load kernel variables from /etc/sysctl.d
+/etc/init.d/procps restart
+exit 0
+```
+
+4. Rechte für Datei nutzen
+```bash
+sudo chmod 755 /etc/rc.local 
+```
+
 ## Installation HDFS
 - Virtuelle Maschine mit Ubuntu 18.04 installieren
   - Username: hadoop
@@ -166,7 +195,7 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
   - ```hdfs dfs -put etc/hadoop input```
 
 ## Arbeitsspeicher
-Haddop verwendet standardmäßig in für die Nodes 8 GB RAM. Da die eingerichteten Nodes jedoch nur über 4 GB vRAM verfügen, muss dies noch konfiguriert werden. Die folgende Tabelle zeigt dabei die eingestellten Werte.
+Hadoop verwendet standardmäßig in für die Nodes 8 GB RAM. Da die eingerichteten Nodes jedoch nur über 4 GB vRAM verfügen, muss dies noch konfiguriert werden. Die folgende Tabelle zeigt dabei die eingestellten Werte.
 
 Eigenschaften                        | Wert
 -------------------------------------|------
@@ -337,3 +366,5 @@ stop-dfs.sh
 - https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
 - https://hadoop.apache.org/docs/r2.9.1/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html
 - https://hadoop.apache.org/docs/r2.9.1/hadoop-project-dist/hadoop-common/ClusterSetup.html
+- https://www.admintome.com/blog/disable-ipv6-on-ubuntu-18-04/
+-
