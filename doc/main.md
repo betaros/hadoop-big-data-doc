@@ -15,6 +15,7 @@
 			- [etc/hadoop/yarn-env.sh](#etchadoopyarn-envsh)
 			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
 			- [Namenode einrichten](#namenode-einrichten)
+		- [Arbeitsspeicher](#arbeitsspeicher)
 		- [Cluster](#cluster)
 			- [/etc/hosts](#etchosts)
 			- [etc/hadoop/core-site.xml](#etchadoopcore-sitexml)
@@ -153,6 +154,57 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
   - ```hdfs dfs -mkdir /user/hadoop```
 - Input Dateien kopieren
   - ```hdfs dfs -put etc/hadoop input```
+
+## Arbeitsspeicher
+Eigenschaften                        | Wert
+-------------------------------------|------
+yarn.nodemanager.resource.memory-mb  | 3072
+yarn.scheduler.maximum-allocation-mb | 3072
+yarn.scheduler.minimum-allocation-mb | 256
+yarn.app.mapreduce.am.resource.mb    | 1024
+mapreduce.map.memory.mb              | 512
+mapreduce.reduce.memory.mb           | 512
+
+#### etc/hadoop/yarn-site.xml
+```bash
+<property>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>3072</value>
+</property>
+
+<property>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>3072</value>
+</property>
+
+<property>
+    <name>yarn.scheduler.minimum-allocation-mb</name>
+    <value>256</value>
+</property>
+
+<property>
+    <name>yarn.nodemanager.vmem-check-enabled</name>
+    <value>false</value>
+</property>
+```
+
+#### etc/hadoop/mapred-site.xml
+```bash
+<property>
+        <name>yarn.app.mapreduce.am.resource.mb</name>
+        <value>1024</value>
+</property>
+
+<property>
+        <name>mapreduce.map.memory.mb</name>
+        <value>512</value>
+</property>
+
+<property>
+        <name>mapreduce.reduce.memory.mb</name>
+        <value>512</value>
+</property>
+```
 
 ### Cluster
 #### /etc/hosts
