@@ -3,6 +3,7 @@
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Big Data](#big-data)
+	- [Hardware](#hardware)
 	- [Installation HDFS](#installation-hdfs)
 	- [Konfiguration](#konfiguration)
 		- [Single-Node](#single-node)
@@ -27,6 +28,18 @@
 	- [Quellen](#quellen)
 
 <!-- /TOC -->
+
+## Hardware
+Das Cluster besteht aus drei Nodes welche in drei eigenen virtuellen Maschinen laufen. Diese teilen sich auf in ein Master Node und zwei Slave Nodes. Das Hostsystem hat folgende Systemeigenschaften:
+- Intel i7-7700 4-core 3.60 GHz
+- 32 GB DDR4 RAM
+- Windows 10 Pro
+
+Die virtuellen Maschinen verfügen über die folgenden Resourcen:
+- 1 vCPU
+- 4 GB vRAM
+- 15 GB Festplatte
+- Ubuntu 18.04.1
 
 ## Installation HDFS
 - Virtuelle Maschine mit Ubuntu 18.04 installieren
