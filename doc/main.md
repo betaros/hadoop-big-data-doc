@@ -4,6 +4,7 @@
 
 - [Big Data](#big-data)
 	- [Hardware](#hardware)
+	- [Netzwerkeinstellungen](#netzwerkeinstellungen)
 	- [Installation HDFS](#installation-hdfs)
 	- [Konfiguration](#konfiguration)
 		- [Single-Node](#single-node)
@@ -41,6 +42,15 @@ Die virtuellen Maschinen verfügen über die folgenden Resourcen:
 - 4 GB vRAM
 - 15 GB Festplatte
 - Ubuntu 18.04.1
+
+## Netzwerkeinstellungen
+Im Hadoop Cluster verfügen die einzelnen VMs über eigene statische IPs:
+
+Maschine | IP
+---------|-----------------
+master   | 192.168.178.100
+slave1   | 192.168.178.101
+slave2   | 192.168.178.102
 
 ## Installation HDFS
 - Virtuelle Maschine mit Ubuntu 18.04 installieren
@@ -156,6 +166,8 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
   - ```hdfs dfs -put etc/hadoop input```
 
 ## Arbeitsspeicher
+Haddop verwendet standardmäßig in für die Nodes 8 GB RAM. Da die eingerichteten Nodes jedoch nur über 4 GB vRAM verfügen, muss dies noch konfiguriert werden. Die folgende Tabelle zeigt dabei die eingestellten Werte.
+
 Eigenschaften                        | Wert
 -------------------------------------|------
 yarn.nodemanager.resource.memory-mb  | 3072
