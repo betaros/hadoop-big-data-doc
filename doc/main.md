@@ -184,6 +184,9 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
 ```
 
 #### Namenode einrichten
+
+> Gegebenenfalls muss vor dem Ausführen von ```hdfs namenode -format``` der Hadoop-Data Ordner geleert werden (master und slaves)
+
 - Namenode Dateisystem formatieren
   - ```hdfs namenode -format```
 - DFS starten
@@ -301,17 +304,17 @@ mapreduce.reduce.memory.mb           | 512
 
     <property>
         <name>yarn.resourcemanager.address</name>
-        <value>master:port</value>
+        <value>master:8031</value>
     </property>
 
     <property>
         <name>yarn.resourcemanager.scheduler.address</name>
-        <value>master:port</value>
+        <value>master:8030</value>
     </property>
 
     <property>
         <name>yarn.resourcemanager.resource-tracker.address</name>
-        <value>master:port</value>
+        <value>master:8032</value>
     </property>
 </configuration>
 ```
