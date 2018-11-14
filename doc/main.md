@@ -78,7 +78,7 @@ exit 0
 
 4. Rechte für Datei nutzen
 ```bash
-sudo chmod 755 /etc/rc.local 
+sudo chmod 755 /etc/rc.local
 ```
 
 ## Installation HDFS
@@ -363,6 +363,33 @@ stop-yarn.sh
 - DFS Stoppen
 ```bash
 stop-dfs.sh
+```
+
+## HIPI Installation
+- Gradle installieren
+```bash
+sudo apt install gradle
+```
+
+- HIPI clonen
+```bash
+git clone https://github.com/uvagfx/hipi.git
+```
+
+- Gradle nutzen
+```bash
+cd hipi
+gradle
+```
+
+- Projekt aufräumen
+```bash
+gradle clean tools:hibImport:jar
+```
+
+- HIPI updaten
+```bash
+git pull origin release
 ```
 
 ## Quellen
