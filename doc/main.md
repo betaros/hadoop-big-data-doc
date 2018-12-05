@@ -3,8 +3,11 @@
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Big Data](#big-data)
+	- [Aufbau des Clusters](#aufbau-des-clusters)
 	- [Hardware](#hardware)
+	- [Einrichtung virtueller Maschinen](#einrichtung-virtueller-maschinen)
 	- [Netzwerkeinstellungen](#netzwerkeinstellungen)
+		- [IPv6 ausschalten](#ipv6-ausschalten)
 	- [Installation HDFS](#installation-hdfs)
 	- [Konfiguration](#konfiguration)
 		- [Single-Node](#single-node)
@@ -16,7 +19,9 @@
 			- [etc/hadoop/yarn-env.sh](#etchadoopyarn-envsh)
 			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
 			- [Namenode einrichten](#namenode-einrichten)
-		- [Arbeitsspeicher](#arbeitsspeicher)
+	- [Arbeitsspeicher](#arbeitsspeicher)
+			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
+			- [etc/hadoop/mapred-site.xml](#etchadoopmapred-sitexml)
 		- [Cluster](#cluster)
 			- [/etc/hosts](#etchosts)
 			- [etc/hadoop/core-site.xml](#etchadoopcore-sitexml)
@@ -27,9 +32,13 @@
 			- [Prozesse](#prozesse)
 			- [Starten](#starten)
 			- [Stoppen](#stoppen)
+	- [HIPI Installation](#hipi-installation)
 	- [Quellen](#quellen)
 
 <!-- /TOC -->
+
+## Aufbau des Clusters
+
 
 ## Hardware
 Das Cluster besteht aus drei Nodes welche in drei eigenen virtuellen Maschinen laufen. Diese teilen sich auf in ein Master Node und zwei Slave Nodes. Das Hostsystem hat folgende Systemeigenschaften:
@@ -83,9 +92,9 @@ sudo sysctl -p
 
 3. Bug beheben, dass die Konfiguration nach dem Neustart noch vorhanden ist. Dazu muss die Datei /etc/rc.local erstellt werden, mit folgenden Inhalt:
 ```bash
-#!/bin/bash
-# /etc/rc.local
-# Load kernel variables from /etc/sysctl.d
+ #!/bin/bash
+ # /etc/rc.local
+ # Load kernel variables from /etc/sysctl.d
 /etc/init.d/procps restart
 exit 0
 ```
@@ -334,6 +343,7 @@ mapreduce.reduce.memory.mb           | 512
 ```
 
 #### etc/hadoop/slaves
+Damit der Hadoop Master Node mit den Slave Nodes kommunizieren kann, müssen die Hostnames der Slaves in der Datei *slaves* hinzugefügt werden:
 ```bash
 slave1
 slave2
@@ -342,20 +352,51 @@ slave2
 ### Bedienung
 
 #### Prozesse
-- Prozesse anzeigen
+Prozesse anzeigen
 ```bash
 jps
 ```
 
-- Gestartete Prozesse nach dem Start von DFS und YARN
+Nach dem Start von DFS und YARN sollten die folgenden die folgenden Prozesse auf dem *Master* angezeigt werden:
 ```bash
-3479 NameNode
-5671 Jps
-4297 ResourceManager
-3851 SecondaryNameNode
-3646 DataNode
-4430 NodeManager
+NameNode
+Jps
+ResourceManager
+SecondaryNameNode
+NodeManager
 ```
+
+Auf den *Slaves* sollten jeweils die folgenden Prozesse gestartet sein:
+```bash
+Jps
+SecondaryNameNode
+DataNode
+```
+
+Die Prozesse haben die folgende Bedeutung:
+- NameNode
+
+	Der NameNode kontrolliert und verwaltet alle Dateien, die im HDFS abgespeichert sind. Dabei beinhaltet es nur Metadaten von den Dateien. Es läuft nur auf dem Master Node
+
+- jps
+
+	Mit JPS werden die laufenden Prozesse im Hadoop Cluster angezeigt.
+
+- ResourceManager
+
+	Der ResourceManager verteilt die vorhanden Resourcen an die unterschiedlichen Nodes und sorgt damit für eine optimale Auslastung des Clusters.
+
+- SecondaryNameNode
+
+	Der SecondaryNameNode ist ein Hilfsprozess für den NameNode, welcher den Zugang zum HDFS auf den einzelnen Nodes darstellt.
+
+- DataNode
+
+	Die im Cluster vorhanden Daten werden im DataNode gespeichert. In unserer Konfiguration werden die DataNodes nur auf den Slaves ausgeführt.
+
+- NodeManager
+
+	Der NodeManager sorgt auf jedem Node dafür, dass die Auslastung des Nodes erfasst und an den ResourceManager weitergeleitet wird.
 
 #### Starten
 - DFS Starten
