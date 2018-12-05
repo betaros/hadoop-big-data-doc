@@ -36,12 +36,24 @@ Das Cluster besteht aus drei Nodes welche in drei eigenen virtuellen Maschinen l
 - Intel i7-7700 4-core 3.60 GHz
 - 32 GB DDR4 RAM
 - Windows 10 Pro
+- Virtualbox 5.2
 
 Die virtuellen Maschinen verfügen über die folgenden Resourcen:
 - 1 vCPU
 - 4 GB vRAM
 - 15 GB Festplatte
-- Ubuntu 18.04.3
+- Ubuntu 18.04.1
+
+## Einrichtung virtueller Maschinen
+Für die Erstellung eines virtuellen Clusters wurde VirtualBox 5.2 von der Firma Oracle verwendet. Zusätzlich wurden das Erweiterungspaket installiert. Man findet beides unter
+
+> [www.virtualbox.org](http://www.virtualbox.de)
+
+Nachdem VirtualBox installiert wurde, wurde ein Betriebssystem für die virtuellen Maschinen heruntergeladen. Dabei haben wir uns für die aktuelle Version von [Ubuntu 18.04.1](http://releases.ubuntu.com/18.04/) entschieden. Um möglichst wenig Resourcen zu verwenden wurde ein Minimal-Image heruntergeladen und das Betriebssystem über Konsole installiert.
+
+> [Minimal Image Ubuntu 18.04.1](http://archive.ubuntu.com/ubuntu/dists/bionic-updates/main/installer-amd64/current/images/netboot/)
+
+Zuerst wurde eine einzelne VM eingerichtet. Diese wurde wie im Kapitel [Single-Node](#single-node) beschrieben eingerichtet. Die eingerichtete VM ist der Masternode. Nach der Einrichtung wurde die VM zwei Mal geklont, welche dann als Slaves eingerichtet. Das System wurde dann von Single-Node auf Multi-Node wie im Kapitel [Cluster](#cluster) beschrieben konfiguriert.
 
 ## Netzwerkeinstellungen
 Im Hadoop Cluster verfügen die einzelnen VMs über eigene statische IPs:
@@ -51,6 +63,8 @@ Maschine | IP
 master   | 192.168.178.100
 slave1   | 192.168.178.101
 slave2   | 192.168.178.102
+
+Die IP Adressen wurden über den Router festgelegt. Dabei wurde eine Fritzbox 7362 SL verwendet.
 
 ### IPv6 ausschalten
 Um Hadoop nutzen zu können muss IPv6 deaktiviert werden. Dies hat unter Ubuntu 18.04 einen Bug, den man berücksichtigen muss.
@@ -395,6 +409,9 @@ gradle
 ```bash
 git pull origin release
 ```
+
+- ClassNotFoundException
+> https://stackoverflow.com/questions/53298672/hadoop-hipi-hibimport-noclassdeffounderror/53409716#53409716
 
 - Bilder auf Probleme prüfen
 
