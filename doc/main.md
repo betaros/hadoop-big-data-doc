@@ -19,19 +19,19 @@
 			- [etc/hadoop/yarn-env.sh](#etchadoopyarn-envsh)
 			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
 			- [Namenode einrichten](#namenode-einrichten)
-	- [Arbeitsspeicher](#arbeitsspeicher)
-			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
-			- [etc/hadoop/mapred-site.xml](#etchadoopmapred-sitexml)
 		- [Cluster](#cluster)
 			- [/etc/hosts](#etchosts)
 			- [etc/hadoop/core-site.xml](#etchadoopcore-sitexml)
 			- [etc/hadoop/hdfs-site.xml](#etchadoophdfs-sitexml)
 			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
 			- [etc/hadoop/slaves](#etchadoopslaves)
-		- [Bedienung](#bedienung)
-			- [Starten](#starten)
-			- [Stoppen](#stoppen)
-			- [Prozesse](#prozesse)
+	- [Arbeitsspeicher](#arbeitsspeicher)
+		- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
+		- [etc/hadoop/mapred-site.xml](#etchadoopmapred-sitexml)
+	- [Bedienung](#bedienung)
+		- [Starten](#starten)
+		- [Stoppen](#stoppen)
+		- [Prozesse](#prozesse)
 	- [HIPI](#hipi)
 		- [Installation](#installation)
 		- [Updates](#updates)
@@ -108,24 +108,43 @@ sudo chmod 755 /etc/rc.local
 ```
 
 ## Installation HDFS
-- Virtuelle Maschine mit Ubuntu 18.04 installieren
-  - Username: hadoop
-- JDK installieren
-  - ```apt install default-jdk```
-- Hadoop 2.9.1 runterladen und entpacken
-  - ```wget -c  https://archive.apache.org/dist/hadoop/core/hadoop-2.9.1/hadoop-2.9.1.tar.gz```
-  - ```tar -xvf hadoop-2.9.1.tar.gz```
-- Hadoop nach /opt/hadoop entpacken
-  - ```sudo mv hadoop /opt/hadoop```
-- Ordner erstellen für Namenode und Datanode
-  - ```sudo mkdir /opt/hadoop-data```
-  - ```sudo mkdir /opt/hadoop-data/name```
-  - ```sudo mkdir /opt/hadoop-data/data```
-- Rechte setzen für User hadoop
-  - ```sudo chown -R hadoop:hadoop /opt/hadoop```
-  - ```sudo chown -R hadoop:hadoop /opt/hadoop-data```
-- $PATH erweitern um /opt/hadoop/bin und /opt/hadoop/sbin
-  - ```echo "export PATH=$PATH:/opt/hadoop/bin:/opt/hadoop/sbin" >> ~/.bashrc```
+Das Hadoop Distributed File System (HDFS) ist ein verteiltes Dateisystem, welches auf normalen Rechnern installiert werden kann. Es steht für Anwender frei zur Verfügung.
+
+Viele Teile von Hadoop wurden in Java geschrieben. Aufgrund dessen müssen auf allen Nodes folgende Programme installiert werden. Dabei kann, wie bereits in [Einrichtung virtueller Maschinen](#einrichtung-virtueller-maschinen) beschrieben, das folgende auf dem Master Node angewandt werden und die virtuelle Maschine dann geklont werden.
+
+Zuerst muss das OpenJDK installiert werden. Dabei wurde auf das Default-JDK unter Ubuntu zurückgegriffen, welches das OpenJDK-11 zur Zeit der Einrichtung ist.
+```bash
+apt install default-jdk
+```
+
+Nachdem Java installiert wurde kann Hadoop 2.9.1 heruntergeladen und entpackt werden.
+```bash
+wget -c  https://archive.apache.org/dist/hadoop/core/hadoop-2.9.1/hadoop-2.9.1.tar.gz
+tar -xvf hadoop-2.9.1.tar.gz
+```
+
+Das entpackte Paket kann nun in einen Ordner verschoben werden, in dem Hadoop installiert werden soll. Dabei haben wir uns für den Ordner /opt im Linux Dateisystem entschieden, da dieser Ordner für optionale Software verwendet wird.
+```bash
+sudo mv hadoop /opt/hadoop
+```
+
+Auf dem System müssen dann Pfade erstellt und angegeben werden, welche für den NameNode und DataNode benötigt werden. Dies wurde wie folgt erstellt:
+```bash
+sudo mkdir /opt/hadoop-data
+sudo mkdir /opt/hadoop-data/name
+sudo mkdir /opt/hadoop-data/data
+```
+
+Um Hadoop auch ohne Rootrechten nutzen zu können wurden die Eigentümer für die neuen Ordner auf für den User hadoop auf *hadoop* gesetzt:
+```bash
+sudo chown -R hadoop:hadoop /opt/hadoop
+sudo chown -R hadoop:hadoop /opt/hadoop-data
+```
+
+Da der Aufruf von Hadoop über den Pfad sehr umständlich ist wurde zur Vereinfachung die Pfadvariable erweitert um die Pfade zu den ausführbaren Dateien in Hadoop. Diese befinden sich unter ```/opt/hadoop/bin``` und ```/opt/hadoop/sbin```.
+```bash
+echo "export PATH=$PATH:/opt/hadoop/bin:/opt/hadoop/sbin" >> ~/.bashrc
+```
 
 ## Konfiguration
 ### Single-Node
@@ -223,59 +242,6 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
 - Input Dateien kopieren
   - ```hdfs dfs -put etc/hadoop input```
 
-## Arbeitsspeicher
-Hadoop verwendet standardmäßig in für die Nodes 8 GB RAM. Da die eingerichteten Nodes jedoch nur über 4 GB vRAM verfügen, muss dies noch konfiguriert werden. Die folgende Tabelle zeigt dabei die eingestellten Werte.
-
-Eigenschaften                        | Wert
--------------------------------------|------
-yarn.nodemanager.resource.memory-mb  | 3072
-yarn.scheduler.maximum-allocation-mb | 3072
-yarn.scheduler.minimum-allocation-mb | 256
-yarn.app.mapreduce.am.resource.mb    | 1024
-mapreduce.map.memory.mb              | 512
-mapreduce.reduce.memory.mb           | 512
-
-#### etc/hadoop/yarn-site.xml
-```bash
-<property>
-    <name>yarn.nodemanager.resource.memory-mb</name>
-    <value>3072</value>
-</property>
-
-<property>
-    <name>yarn.scheduler.maximum-allocation-mb</name>
-    <value>3072</value>
-</property>
-
-<property>
-    <name>yarn.scheduler.minimum-allocation-mb</name>
-    <value>256</value>
-</property>
-
-<property>
-    <name>yarn.nodemanager.vmem-check-enabled</name>
-    <value>false</value>
-</property>
-```
-
-#### etc/hadoop/mapred-site.xml
-```bash
-<property>
-        <name>yarn.app.mapreduce.am.resource.mb</name>
-        <value>1024</value>
-</property>
-
-<property>
-        <name>mapreduce.map.memory.mb</name>
-        <value>512</value>
-</property>
-
-<property>
-        <name>mapreduce.reduce.memory.mb</name>
-        <value>512</value>
-</property>
-```
-
 ### Cluster
 #### /etc/hosts
 - Adressen für Master und Slaves angeben
@@ -352,9 +318,63 @@ slave1
 slave2
 ```
 
-### Bedienung
+## Arbeitsspeicher
+Hadoop verwendet standardmäßig in für die Nodes 8 GB RAM. Da die eingerichteten Nodes jedoch nur über 4 GB vRAM verfügen, muss dies noch konfiguriert werden. Die folgende Tabelle zeigt dabei die eingestellten Werte.
 
-#### Starten
+Eigenschaften                        | Wert
+-------------------------------------|------
+yarn.nodemanager.resource.memory-mb  | 3072
+yarn.scheduler.maximum-allocation-mb | 3072
+yarn.scheduler.minimum-allocation-mb | 256
+yarn.app.mapreduce.am.resource.mb    | 1024
+mapreduce.map.memory.mb              | 512
+mapreduce.reduce.memory.mb           | 512
+
+### etc/hadoop/yarn-site.xml
+```bash
+<property>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>3072</value>
+</property>
+
+<property>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>3072</value>
+</property>
+
+<property>
+    <name>yarn.scheduler.minimum-allocation-mb</name>
+    <value>256</value>
+</property>
+
+<property>
+    <name>yarn.nodemanager.vmem-check-enabled</name>
+    <value>false</value>
+</property>
+```
+
+### etc/hadoop/mapred-site.xml
+```bash
+<property>
+        <name>yarn.app.mapreduce.am.resource.mb</name>
+        <value>1024</value>
+</property>
+
+<property>
+        <name>mapreduce.map.memory.mb</name>
+        <value>512</value>
+</property>
+
+<property>
+        <name>mapreduce.reduce.memory.mb</name>
+        <value>512</value>
+</property>
+```
+
+
+## Bedienung
+
+### Starten
 - DFS Starten
 ```bash
 start-dfs.sh
@@ -365,7 +385,7 @@ start-dfs.sh
 start-yarn.sh
 ```
 
-#### Stoppen
+### Stoppen
 - YARN Stoppen
 ```bash
 stop-yarn.sh
@@ -376,8 +396,7 @@ stop-yarn.sh
 stop-dfs.sh
 ```
 
-
-#### Prozesse
+### Prozesse
 Prozesse anzeigen
 ```bash
 jps
