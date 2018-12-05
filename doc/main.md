@@ -147,18 +147,22 @@ echo "export PATH=$PATH:/opt/hadoop/bin:/opt/hadoop/sbin" >> ~/.bashrc
 ```
 
 ## Konfiguration
+In den folgenden Kapiteln wird zuerst die Einrichtung eines einzelnen Nodes beschrieben. Dies wird dann erweitert um weitere Nodes, welche dann ein Cluster bilden.
+
 ### Single-Node
-- https://hadoop.apache.org/docs/r2.9.1/hadoop-project-dist/hadoop-common/SingleCluster.html
+Die Einrichtung eines einzelnen Nodes wird auf der Apache Webseite zu Hadoop beschrieben. Wir haben uns bei der Einrichtung an dieser orientiert:  [Apache Hadoop](https://hadoop.apache.org/docs/r2.9.1/hadoop-project-dist/hadoop-common/SingleCluster.html).
 
 #### SSH
-Wenn ```ssh localhost``` fehlschlägt:
+Damit die Nodes untereinander kommunizieren können, ist es notwendig einen SSH Schlüssel auf jeden Node zu erstellen. Dieser wird dann auf jeden Node installiert, sodass alle Nodes untereinander mit Hadoop kommunizieren können.
 ```bash
-$ ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
-$ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-$ chmod 0600 ~/.ssh/authorized_keys
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+ssh-copy-id 'Name des Ziels'
 ```
 
+Bei der Einrichtung eines einzelnen Nodes muss das Ziel der Master Node sein: *master*.
+
 #### etc/hadoop/core-site.xml
+In der Datei ```core-site.xml``` wird angegeben wo sich die NameNodes im Cluster befinden. Zudem werden Grundfunktionalitäten wie HDFS und MapReduce dort definiert. Hier wird der Zugriffspunkt aus dem Netzwerk definiert. In diesem Fall *localhost:9000*.
 ```bash
 <configuration>
     <property>
@@ -447,6 +451,7 @@ Die Prozesse haben die folgende Bedeutung:
 HIPI ist eine Bildverarbeitungsbibliothek für Hadoop, welche an der University of Virginia, USA entwickelt wurde. Für die Bildverarbeitung wird MapReduce verwendet. Zudem bietet es die Möglichkeit große Datenmengen zu verwalten und mit OpenCV auszuwerten.
 
 ### Installation
+Bei der Installation haben wir uns auf [die offizielle Dokumentation](http://hipi.cs.virginia.edu/gettingstarted.html) der Entwickler bezogen.
 - Gradle installieren
 ```bash
 sudo apt install gradle
@@ -478,15 +483,14 @@ Möchte man HIPI updaten, kann man dies mit Git machen. Jedoch wurden seit über
 git pull origin release
 ```
 
-### Probleme
+## Probleme
+Nach der Installation von Hipi haben wir versucht das Beispielprogramm auszuführen.
 - ClassNotFoundException
 > https://stackoverflow.com/questions/53298672/hadoop-hipi-hibimport-noclassdeffounderror/53409716#53409716
 
-- Bilder auf Probleme prüfen
 
 ## Quellen
 - https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
 - https://hadoop.apache.org/docs/r2.9.1/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html
 - https://hadoop.apache.org/docs/r2.9.1/hadoop-project-dist/hadoop-common/ClusterSetup.html
 - https://www.admintome.com/blog/disable-ipv6-on-ubuntu-18-04/
--
