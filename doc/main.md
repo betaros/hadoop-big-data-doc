@@ -29,10 +29,13 @@
 			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
 			- [etc/hadoop/slaves](#etchadoopslaves)
 		- [Bedienung](#bedienung)
-			- [Prozesse](#prozesse)
 			- [Starten](#starten)
 			- [Stoppen](#stoppen)
-	- [HIPI Installation](#hipi-installation)
+			- [Prozesse](#prozesse)
+	- [HIPI](#hipi)
+		- [Installation](#installation)
+		- [Updates](#updates)
+		- [Probleme](#probleme)
 	- [Quellen](#quellen)
 
 <!-- /TOC -->
@@ -351,6 +354,29 @@ slave2
 
 ### Bedienung
 
+#### Starten
+- DFS Starten
+```bash
+start-dfs.sh
+```
+
+- YARN Starten
+```bash
+start-yarn.sh
+```
+
+#### Stoppen
+- YARN Stoppen
+```bash
+stop-yarn.sh
+```
+
+- DFS Stoppen
+```bash
+stop-dfs.sh
+```
+
+
 #### Prozesse
 Prozesse anzeigen
 ```bash
@@ -398,29 +424,10 @@ Die Prozesse haben die folgende Bedeutung:
 
 	Der NodeManager sorgt auf jedem Node dafür, dass die Auslastung des Nodes erfasst und an den ResourceManager weitergeleitet wird.
 
-#### Starten
-- DFS Starten
-```bash
-start-dfs.sh
-```
+## HIPI
+HIPI ist eine Bildverarbeitungsbibliothek für Hadoop, welche an der University of Virginia, USA entwickelt wurde. Für die Bildverarbeitung wird MapReduce verwendet. Zudem bietet es die Möglichkeit große Datenmengen zu verwalten und mit OpenCV auszuwerten.
 
-- YARN Starten
-```bash
-start-yarn.sh
-```
-
-#### Stoppen
-- YARN Stoppen
-```bash
-stop-yarn.sh
-```
-
-- DFS Stoppen
-```bash
-stop-dfs.sh
-```
-
-## HIPI Installation
+### Installation
 - Gradle installieren
 ```bash
 sudo apt install gradle
@@ -446,11 +453,13 @@ cd hipi
 gradle
 ```
 
-- HIPI updaten
+### Updates
+Möchte man HIPI updaten, kann man dies mit Git machen. Jedoch wurden seit über 3 Jahren keine Änderungen am Quellcode durchgeführt.
 ```bash
 git pull origin release
 ```
 
+### Probleme
 - ClassNotFoundException
 > https://stackoverflow.com/questions/53298672/hadoop-hipi-hibimport-noclassdeffounderror/53409716#53409716
 
