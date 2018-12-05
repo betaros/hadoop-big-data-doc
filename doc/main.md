@@ -41,7 +41,7 @@ Die virtuellen Maschinen verfügen über die folgenden Resourcen:
 - 1 vCPU
 - 4 GB vRAM
 - 15 GB Festplatte
-- Ubuntu 18.04.1
+- Ubuntu 18.04.3
 
 ## Netzwerkeinstellungen
 Im Hadoop Cluster verfügen die einzelnen VMs über eigene statische IPs:
@@ -376,21 +376,27 @@ sudo apt install gradle
 git clone https://github.com/uvagfx/hipi.git
 ```
 
+- tools/build.gradle anpassen
+```bash
+jar {
+    manifest {
+      attributes("Class-Path" : configurations.runtime.collect { it.getAbsolutePath() }.join(' '));
+  //    attributes("Class-Path" : configurations.runtime.collect { it.toURI() }.join(' '));
+    }
+```
+
 - Gradle nutzen
 ```bash
 cd hipi
 gradle
 ```
 
-- Projekt aufräumen
-```bash
-gradle clean tools:hibImport:jar
-```
-
 - HIPI updaten
 ```bash
 git pull origin release
 ```
+
+- Bilder auf Probleme prüfen
 
 ## Quellen
 - https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
