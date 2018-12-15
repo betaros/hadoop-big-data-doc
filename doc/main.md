@@ -613,7 +613,7 @@ public void setup(Context context)
 	start-dfs.sh
 	hdfs dfs -mkdir /user
 	hdfs dfs -mkdir /user/hadoop
-```
+	```
 
 ## Quellen
 - https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
