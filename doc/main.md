@@ -483,11 +483,114 @@ Möchte man HIPI updaten, kann man dies mit Git machen. Jedoch wurden seit über
 git pull origin release
 ```
 
+## Gesichter zählen
+Bei der Erkennung von und dem zählen von Gesichtern haben wir auf Quellcode von der Webseite [Dinesh's Blog](http://dinesh-malav.blogspot.com/2015/05/image-processing-using-opencv-on-hadoop.html) zurückgegriffen. Diesen haben wir so angepasst, dass wir das System zum Erstellen des Projekts von Ant auf Gradle umgestellt haben. Zudem haben wir als Abhängigkeit *OpenCV* durch *Bytedeco* ersetzt, welche eine Java-Schnittstelle
+
+### Gradle
+>Gradle ist ein auf Java basierendes Build-Management-Automatisierungs-Tool, vergleichbar mit Apache Ant und Apache Maven. Gradle nutzt eine auf Groovy basierende domänenspezifische Sprache (DSL) zur Beschreibung der zu bauenden Projekte. Im Gegensatz zu Maven-Projektdefinitionen (pom.xml) sind Gradle-Skripte direkt ausführbarer Code.
+
+>Gradle wurde für Builds von Softwaresystemen entworfen, welche aus einer Vielzahl von Projekten bestehen. Basierend auf der Philosophie „Erwarte das Unerwartete“ wurde versucht, das in Maven etablierte „build-by-convention“-Prinzip (eine Variante von „Konvention vor Konfiguration“) mit der Flexibilität von Ant zusammenzubringen.
+
+https://de.wikipedia.org/wiki/Gradle am 15.12.2018 um 15.45 Uhr
+
+#### build.gradle
+Um das Projekt einrichten zu können benötigt man eine build.gradle Datei. Diese beinhaltet alle Abhängigkeiten und Optionen, die zu Bau des Projekts benötigt werden.
+```bash
+plugins {
+    id 'java'
+}
+
+group 'org.hoststralsund'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.apache.hadoop', name: 'hadoop-common', version: '2.9.1'
+    compile group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: '2.9.1'
+    compile group: 'org.apache.hadoop', name: 'hadoop-mapreduce-client-core', version: '2.9.1'
+    compile group: 'org.bytedeco', name: 'javacv-platform', version: '1.4.3'
+    compile group: 'org.bytedeco', name: 'javacpp', version: '1.4.3'
+    compile group: 'org.bytedeco', name: 'javacpp-presets', version: '1.4.3'
+    compile files('hipi-2.0.jar', 'hipi-2.1.0.jar')
+}
+
+jar {
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'org.hoststralsund.faces.FaceCount'
+        )
+    }
+    from configurations.compile.collect { entry -> zipTree(entry) }
+}
+```
+
+#### Erstellen einer JAR-Datei
+Man kann eine JAR-Datei mit Gradle erstellen lassen, wenn man einen Abschnitt *jar* in die build.gradle hinzufügt. In unserem Beispiel werden alle Abhängigkeiten für das Projekt mit in die JAR-Datei eingebunden.
+
+Das Projekt kann nun mit dem folgenden Befehl im Root-Verzeichnis gebaut werden:
+```bash
+gradle jar
+```
+
+### HIPI Abhängigkeit
+Das Projekt benötigt HIPI. Dieses ist nur lokal vorhanden, jedoch nicht in
+
+### FaceCount.java
+Die Klasse FaceCount.java umfasst den gesamten Algorithmus, welcher Gesichter erkennt und zählt. Große Teile stammen wie bereits erwähnt von Dinesh's Blog. Anpassungen wurden bei den Imports gemacht, sowie in der Methode *setup*. Dort wurden die nativen OpenCV Bindungen entfernt.
+
+Imports
+```java
+import hipi.image.*;
+import hipi.imagebundle.mapreduce.ImageBundleInputFormat;
+
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.objdetect.CascadeClassifier;
+import static org.bytedeco.javacpp.opencv_core.CV_8UC3;
+
+
+import java.io.IOException;
+import java.net.URI;
+```
+
+Methode setup
+```java
+public void setup(Context context)
+                throws IOException, InterruptedException {
+    // Load OpenCV native library
+    /*try {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    } catch (UnsatisfiedLinkError e) {
+        System.err.println("Native code library failed to load.\n" + e + Core.NATIVE_LIBRARY_NAME);
+        System.exit(1);
+    }*/
+...
+```
+
+### Ausführung auf dem Hadoop Cluster
+*TODO*
+
 ## Probleme
-Nach der Installation von Hipi haben wir versucht das Beispielprogramm auszuführen.
-- ClassNotFoundException
+- Nach der Installation von Hipi haben wir versucht das Beispielprogramm auszuführen. Daraufhin ist ein Fehler aufgetreten, welchen wir bei Stackoverflow beschrieben haben:
 > https://stackoverflow.com/questions/53298672/hadoop-hipi-hibimport-noclassdeffounderror/53409716#53409716
 
+- Nach einem Neustart der VMs ist es nicht mehr möglich auf ein bereits vorhandenes HDFS zuzugreifen. Die einzige Möglichkeit, welche das Problem behebt, ist eine Neuformatierung des HDFS, wobei alle enthaltenen Daten verloren gehen. Diese Lösung ist nicht optimal, jedoch wurde keine andere funktionierende Lösung gefunden.
 
 ## Quellen
 - https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
