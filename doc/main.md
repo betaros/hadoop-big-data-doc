@@ -35,7 +35,14 @@
 	- [HIPI](#hipi)
 		- [Installation](#installation)
 		- [Updates](#updates)
-		- [Probleme](#probleme)
+	- [Gesichter zählen](#gesichter-zählen)
+		- [HIPI Abhängigkeit](#hipi-abhängigkeit)
+		- [Gradle](#gradle)
+			- [build.gradle](#buildgradle)
+			- [Erstellen einer JAR-Datei](#erstellen-einer-jar-datei)
+		- [FaceCount.java](#facecountjava)
+		- [Ausführung auf dem Hadoop Cluster](#ausführung-auf-dem-hadoop-cluster)
+	- [Probleme](#probleme)
 	- [Quellen](#quellen)
 
 <!-- /TOC -->
@@ -486,6 +493,11 @@ git pull origin release
 ## Gesichter zählen
 Bei der Erkennung von und dem zählen von Gesichtern haben wir auf Quellcode von der Webseite [Dinesh's Blog](http://dinesh-malav.blogspot.com/2015/05/image-processing-using-opencv-on-hadoop.html) zurückgegriffen. Diesen haben wir so angepasst, dass wir das System zum Erstellen des Projekts von Ant auf Gradle umgestellt haben. Zudem haben wir als Abhängigkeit *OpenCV* durch *Bytedeco* ersetzt, welche eine Java-Schnittstelle
 
+### HIPI Abhängigkeit
+Das Projekt benötigt HIPI. Dieses ist nur lokal vorhanden, jedoch nicht in einem offiziellen Gradle oder Maven Repository. Daher müssen die erstellten JAR-Dateien aus dem vorherigen Kapitel verwendet werden.
+
+Diese befinden sich in *hipi/core/build/libs/hipi-2.1.0.jar* und *hipi/release/hipi-2.0.jar*. Beide müssen in das Root-Verzeichnis des FaceCount Projekts kopiert werden.
+
 ### Gradle
 >Gradle ist ein auf Java basierendes Build-Management-Automatisierungs-Tool, vergleichbar mit Apache Ant und Apache Maven. Gradle nutzt eine auf Groovy basierende domänenspezifische Sprache (DSL) zur Beschreibung der zu bauenden Projekte. Im Gegensatz zu Maven-Projektdefinitionen (pom.xml) sind Gradle-Skripte direkt ausführbarer Code.
 
@@ -494,7 +506,7 @@ Bei der Erkennung von und dem zählen von Gesichtern haben wir auf Quellcode von
 https://de.wikipedia.org/wiki/Gradle am 15.12.2018 um 15.45 Uhr
 
 #### build.gradle
-Um das Projekt einrichten zu können benötigt man eine build.gradle Datei. Diese beinhaltet alle Abhängigkeiten und Optionen, die zu Bau des Projekts benötigt werden.
+Um das Projekt einrichten zu können benötigt man eine build.gradle Datei, welche sich im Root-Verzeichnis des Projekts befinden. Diese beinhaltet alle Abhängigkeiten und Optionen, die zu Bau des Projekts benötigt werden.
 ```bash
 plugins {
     id 'java'
@@ -536,11 +548,10 @@ Das Projekt kann nun mit dem folgenden Befehl im Root-Verzeichnis gebaut werden:
 gradle jar
 ```
 
-### HIPI Abhängigkeit
-Das Projekt benötigt HIPI. Dieses ist nur lokal vorhanden, jedoch nicht in
-
 ### FaceCount.java
 Die Klasse FaceCount.java umfasst den gesamten Algorithmus, welcher Gesichter erkennt und zählt. Große Teile stammen wie bereits erwähnt von Dinesh's Blog. Anpassungen wurden bei den Imports gemacht, sowie in der Methode *setup*. Dort wurden die nativen OpenCV Bindungen entfernt.
+
+Die Methode *convertFloatImageToOpenCVMat(FloatImage floatImage)* wurde beibehalten, da die in HIPI vorhandene Funktion *OpenCVUtils.convertRasterImageToMat(RasterImage rasterImage)* keine FloatImages verwenden kann.
 
 Imports
 ```java
@@ -592,8 +603,21 @@ public void setup(Context context)
 
 - Nach einem Neustart der VMs ist es nicht mehr möglich auf ein bereits vorhandenes HDFS zuzugreifen. Die einzige Möglichkeit, welche das Problem behebt, ist eine Neuformatierung des HDFS, wobei alle enthaltenen Daten verloren gehen. Diese Lösung ist nicht optimal, jedoch wurde keine andere funktionierende Lösung gefunden.
 
+	Das Formatieren wurde durch ein Skipt automatisiert. formatRoutine.sh:
+
+	```bash
+	stop-yarn.sh
+	stop-dfs.sh
+
+	hdfs namenode -format
+	start-dfs.sh
+	hdfs dfs -mkdir /user
+	hdfs dfs -mkdir /user/hadoop
+```
+
 ## Quellen
 - https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
 - https://hadoop.apache.org/docs/r2.9.1/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html
 - https://hadoop.apache.org/docs/r2.9.1/hadoop-project-dist/hadoop-common/ClusterSetup.html
 - https://www.admintome.com/blog/disable-ipv6-on-ubuntu-18-04/
+- http://dinesh-malav.blogspot.com/2015/05/image-processing-using-opencv-on-hadoop.html
