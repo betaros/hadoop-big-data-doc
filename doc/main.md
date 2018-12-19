@@ -595,7 +595,20 @@ public void setup(Context context)
 ```
 
 ### Ausführung auf dem Hadoop Cluster
-*TODO*
+#### Cluster starten
+Das Cluster startet man, indem man zuerst ```start-dfs.sh``` und danach ```start-yarn.sh```. Danach sollten alle Dienste gestartet sein.
+
+#### Erstellen einer HIB Datei im Cluster
+Die vorhanden Bilder, welche für die Bildanalyse verwendet werden sollen müssen zu einer .hib Datei zusammengefasst werden. Dies kann man mit HIPI mit dem folgenden Kommando machen:
+```/opt/hipi/tools/hibImport.sh ~/images images.hib```
+
+Der Befehl erstellt eine .hib und eine .hib.dat im HDFS-HOME Ordner.
+
+#### Programm starten
+Das Programm zur Gesichtserkennung wird mit Hadoop gestartet. Dabei greift es auf das HDFS zu und arbeitet mit dem dort vorhandenen Dateisystem.
+```bash
+hadoop jar FaceCount.jar images.hib output
+```
 
 ## Probleme
 - Nach der Installation von Hipi haben wir versucht das Beispielprogramm auszuführen. Daraufhin ist ein Fehler aufgetreten, welchen wir bei Stackoverflow beschrieben haben:
