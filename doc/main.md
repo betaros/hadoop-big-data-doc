@@ -3,6 +3,7 @@
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Big Data](#big-data)
+	- [Einleitung](#einleitung)
 	- [Aufbau des Clusters](#aufbau-des-clusters)
 	- [Hardware](#hardware)
 	- [Einrichtung virtueller Maschinen](#einrichtung-virtueller-maschinen)
@@ -20,11 +21,12 @@
 			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
 			- [Namenode einrichten](#namenode-einrichten)
 		- [Cluster](#cluster)
-			- [/etc/hosts](#etchosts)
-			- [etc/hadoop/core-site.xml](#etchadoopcore-sitexml)
-			- [etc/hadoop/hdfs-site.xml](#etchadoophdfs-sitexml)
-			- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
-			- [etc/hadoop/slaves](#etchadoopslaves)
+			- [Cluster - /etc/hostname](#cluster-etchostname)
+			- [Cluster - /etc/hosts](#cluster-etchosts)
+			- [Cluster - etc/hadoop/core-site.xml](#cluster-etchadoopcore-sitexml)
+			- [Cluster - etc/hadoop/hdfs-site.xml](#cluster-etchadoophdfs-sitexml)
+			- [Cluster - etc/hadoop/yarn-site.xml](#cluster-etchadoopyarn-sitexml)
+			- [Cluster - etc/hadoop/slaves](#cluster-etchadoopslaves)
 	- [Arbeitsspeicher](#arbeitsspeicher)
 		- [etc/hadoop/yarn-site.xml](#etchadoopyarn-sitexml)
 		- [etc/hadoop/mapred-site.xml](#etchadoopmapred-sitexml)
@@ -42,6 +44,9 @@
 			- [Erstellen einer JAR-Datei](#erstellen-einer-jar-datei)
 		- [FaceCount.java](#facecountjava)
 		- [Ausführung auf dem Hadoop Cluster](#ausführung-auf-dem-hadoop-cluster)
+			- [Cluster starten](#cluster-starten)
+			- [Erstellen einer HIB Datei im Cluster](#erstellen-einer-hib-datei-im-cluster)
+			- [Programm starten](#programm-starten)
 	- [Probleme](#probleme)
 	- [Quellen](#quellen)
 
@@ -69,15 +74,15 @@ Die virtuellen Maschinen verfügen über die folgenden Resourcen:
 - Ubuntu 18.04.1
 
 ## Einrichtung virtueller Maschinen
-Für die Erstellung eines virtuellen Clusters wurde VirtualBox 5.2 von der Firma Oracle verwendet. Zusätzlich wurden das Erweiterungspaket installiert. Man findet beides unter
+Für die Erstellung eines virtuellen Clusters wurde VirtualBox 5.2 von der Firma Oracle verwendet. Zusätzlich benötigt man das Erweiterungspaket. Beides findet man unter
 
 > [www.virtualbox.org](http://www.virtualbox.de)
 
-Nachdem VirtualBox installiert wurde, wurde ein Betriebssystem für die virtuellen Maschinen heruntergeladen. Dabei haben wir uns für die aktuelle Version von [Ubuntu 18.04.1](http://releases.ubuntu.com/18.04/) entschieden. Um möglichst wenig Resourcen zu verwenden wurde ein Minimal-Image heruntergeladen und das Betriebssystem über Konsole installiert.
+Nachdem VirtualBox installiert wurde, benötigt man ein Betriebssystem für die virtuellen Maschinen. Dabei haben wir uns für die aktuelle Version von [Ubuntu 18.04.1](http://releases.ubuntu.com/18.04/) entschieden. Um möglichst wenig Resourcen zu verwenden wurde ein Minimal-Image heruntergeladen und das Betriebssystem über Konsole installiert.
 
 > [Minimal Image Ubuntu 18.04.1](http://archive.ubuntu.com/ubuntu/dists/bionic-updates/main/installer-amd64/current/images/netboot/)
 
-Zuerst wurde eine einzelne VM eingerichtet. Diese wurde wie im Kapitel [Single-Node](#single-node) beschrieben eingerichtet. Die eingerichtete VM ist der Masternode. Nach der Einrichtung wurde die VM zwei Mal geklont, welche dann als Slaves eingerichtet. Das System wurde dann von Single-Node auf Multi-Node wie im Kapitel [Cluster](#cluster) beschrieben konfiguriert.
+Zuerst wurde eine einzelne VM wie im Kapitel [Single-Node](#single-node) beschrieben eingerichtet. Die installierte VM ist der Masternode. Nach der Einrichtung wurde die VM zwei Mal geklont, welche dann als Slaves verwendet werden. Das System wurde dann von Single-Node auf Multi-Node wie im Kapitel [Cluster](#cluster) beschrieben konfiguriert.
 
 ## Netzwerkeinstellungen
 Im Hadoop Cluster verfügen die einzelnen VMs über eigene statische IPs:
@@ -185,9 +190,7 @@ In der Datei ```core-site.xml``` wird angegeben wo sich die NameNodes im Cluster
 ```
 
 #### etc/hadoop/hdfs-site.xml
-- Namenode Dateisystem Pfad angeben
-- Datanode Dateisystem Pfad angeben
-- Replikationen von Blöcken einstellen
+Diese Datei beinhaltet alle notwendigen informationen über den HDFS-Daemon. Dabei wird der NameNode und DataNode Dateisystem Pfad angeben, sowie die Anzahl an Replikationen eingestellt.
 
 ```bash
 <configuration>
@@ -209,13 +212,15 @@ In der Datei ```core-site.xml``` wird angegeben wo sich die NameNodes im Cluster
 ```
 
 #### etc/hadoop/hadoop-env.sh
-- Java 11 Pfad anpassen
+Um das System auch mit einer neueren Version von Java ntuzen zu können, muss der Pfad zu Java 11 angepasst werden:
 
 ```bash
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
 ```
 
 #### etc/hadoop/mapred-site.xml
+Damit der MapReduce-Prozess verwendet werden kann, muss diese Datei angepasst werden. Sie wird so konfiguriert, dass das Framework ```yarn``` eingestellt.
+
 ```bash
 <configuration>
     <property>
@@ -226,8 +231,9 @@ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
 ```
 
 #### etc/hadoop/yarn-env.sh
-- Bugfix für JDK 9+
-- siehe Bug [JIRA Hadoop](https://issues.apache.org/jira/browse/HADOOP-14978)
+Das verwendete Framework ```yarn``` hat einen bekannten Bug mit höheren Java Versionen. Siehe Bug [JIRA Hadoop](https://issues.apache.org/jira/browse/HADOOP-14978). Dieses Problem tritt ab Java 9 auf.
+
+Diese Datei beinhaltet die Einstellungen für die Umgebung, welche ```yarn``` benötigt.
 
 ```bash
 export YARN_RESOURCEMANAGER_OPTS="--add-modules java.activation"
@@ -235,6 +241,8 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
 ```
 
 #### etc/hadoop/yarn-site.xml
+Die Datei nennt dem NodeManager das es einen externen Service gibt, welcher den MapReduce Prozess steuert.
+
 ```bash
 <configuration>
     <property>
@@ -245,26 +253,38 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
 ```
 
 #### Namenode einrichten
+Ein Hadoop Cluster besitzt ein Filesystem, welches über mehrere Rechner verteilt wurde. Dies wird mit den folgenden Befehlen eingerichtet.
 
 > Gegebenenfalls muss vor dem Ausführen von ```hdfs namenode -format``` der Hadoop-Data Ordner geleert werden (master und slaves)
 
-- Namenode Dateisystem formatieren
-  - ```hdfs namenode -format```
-- DFS starten
-  - ```start-dfs.sh```
-- User Ordner in DFS einrichten
-  - ```hdfs dfs -mkdir /user```
-  - ```hdfs dfs -mkdir /user/hadoop```
-- Input Dateien kopieren
-  - ```hdfs dfs -put etc/hadoop input```
+Zuerst muss man das Dateisystem formatieren
+```bash
+hdfs namenode -format
+```
+
+Daraufhin startet man das DFS
+```bash
+start-dfs.sh
+```
+
+User Ordner in DFS einrichten
+```bash
+hdfs dfs -mkdir /user
+hdfs dfs -mkdir /user/hadoop
+```
+
+Input Dateien kopieren
+```bash
+hdfs dfs -put etc/hadoop input
+```
 
 ### Cluster
 Nachdem die Einrichtung eines Single Nodes erfolgreich abgeschlossen wurde, wurde die Maschine zwei Mal geklont. Dementsprechend müssen die Klone angepasst werden. Es müssen eine neue MAC Adresse für die virtuelle Netzwerkkarte, sowie ein neuer Hostname vergeben werden.
 
-#### /etc/hostname
+#### Cluster - /etc/hostname
 Um den Namen der Maschine zu ändern, kann man entweder das Programm ```hostnamectl``` in der Kommandozeile verwenden, oder man passt die Hostname-Datei an und ändert den Namen. In diesem Fall müssen Die Namen auf ```slave1``` und ```slave2``` geändert werden.
 
-#### /etc/hosts
+#### Cluster - /etc/hosts
 Die Hosts-Datei beinhaltet die Informationen über verwendeten Routen zu den unterschiedlichen Rechnern im Netzwerk.
 
 ```bash
@@ -273,7 +293,9 @@ Die Hosts-Datei beinhaltet die Informationen über verwendeten Routen zu den unt
 192.168.178.102 slave2
 ```
 
-#### etc/hadoop/core-site.xml
+#### Cluster - etc/hadoop/core-site.xml
+Die Datei wurde bereits im SingleNode beschrieben. Damit das System als Cluster funktioniert, muss die Adresse von ```localhost``` auf ```master``` geändert werden. Damit Dies muss in jeder VM  angepasst werden.
+
 ```bash
 <configuration>
     <property>
@@ -283,8 +305,8 @@ Die Hosts-Datei beinhaltet die Informationen über verwendeten Routen zu den unt
 </configuration>
 ```
 
-#### etc/hadoop/hdfs-site.xml
-- Replikationen auf Anzahl der Slaves erhöhen
+#### Cluster - etc/hadoop/hdfs-site.xml
+Da das Cluster nun über zwi Slaves verfügt, welche die DataNodes laufen lassen, kann die Anzahl an Replikas auf zwei erhöht werden.
 
 ```bash
 <configuration>
@@ -305,8 +327,8 @@ Die Hosts-Datei beinhaltet die Informationen über verwendeten Routen zu den unt
 </configuration>
 ```
 
-#### etc/hadoop/yarn-site.xml
-- Adressen für Slaves anpassen
+#### Cluster - etc/hadoop/yarn-site.xml
+Auf den Slaves müssen die Adressen für den ReduceManager angegeben werden. Dieser kontrolliert die den MapReduce-Prozess.
 
 ```bash
 <configuration>
@@ -332,7 +354,7 @@ Die Hosts-Datei beinhaltet die Informationen über verwendeten Routen zu den unt
 </configuration>
 ```
 
-#### etc/hadoop/slaves
+#### Cluster - etc/hadoop/slaves
 Damit der Hadoop Master Node mit den Slave Nodes kommunizieren kann, müssen die Hostnames der Slaves in der Datei *slaves* hinzugefügt werden:
 ```bash
 slave1
@@ -352,6 +374,8 @@ mapreduce.map.memory.mb              | 512
 mapreduce.reduce.memory.mb           | 512
 
 ### etc/hadoop/yarn-site.xml
+Das ```yarn``` Framework benötigt standardmäßig zu viel Arbeitsspeicher. Daher müssen die Werte angepasst werden.
+
 ```bash
 <property>
     <name>yarn.nodemanager.resource.memory-mb</name>
@@ -375,6 +399,8 @@ mapreduce.reduce.memory.mb           | 512
 ```
 
 ### etc/hadoop/mapred-site.xml
+Die Einstellungen in der Datei beeinflussen den Speicherverbrauch des MapReduce-Prozesses.
+
 ```bash
 <property>
         <name>yarn.app.mapreduce.am.resource.mb</name>
@@ -469,26 +495,32 @@ HIPI ist eine Bildverarbeitungsbibliothek für Hadoop, welche an der University 
 
 ### Installation
 Bei der Installation haben wir uns auf [die offizielle Dokumentation](http://hipi.cs.virginia.edu/gettingstarted.html) der Entwickler bezogen.
-- Gradle installieren
+
+Zuerst muss das Build-System installiert werden. Dafür nutzt Hipi Gradle
+
 ```bash
 sudo apt install gradle
 ```
 
-- HIPI clonen
+Nachdem Gradle installiert wurde kann Hipi geklont werden.
+
 ```bash
 git clone https://github.com/uvagfx/hipi.git
 ```
 
-- tools/build.gradle anpassen
+Wie im Bereich Probleme beschrieben wurde, existiert ein Bug im Quellcode von Hipi. Dieser sorgt für einen NoClassDefFoundError. Er wird durch Anpassen von tools/build.gradle behoben:
+
 ```bash
 jar {
-    manifest {
-      attributes("Class-Path" : configurations.runtime.collect { it.getAbsolutePath() }.join(' '));
-  //    attributes("Class-Path" : configurations.runtime.collect { it.toURI() }.join(' '));
-    }
+	manifest {
+		attributes("Class-Path" : configurations.runtime.collect { it.getAbsolutePath() }.join(' '));
+		// attributes("Class-Path" : configurations.runtime.collect { it.toURI() }.join(' '));
+	}
+}
 ```
 
-- Gradle nutzen
+Nachdem der Quellcode heruntergeladen und der Bug behoben wurde, kann das Programm gebaut werden.
+
 ```bash
 cd hipi
 gradle
