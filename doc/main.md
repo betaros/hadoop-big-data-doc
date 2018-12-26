@@ -47,8 +47,13 @@
 
 <!-- /TOC -->
 
-## Aufbau des Clusters
+## Einleitung
+Im Modul Big Data des Masterstudiengangs Informatik WS 2018/2019 an der Hochschule Stralsund wurde ein Hadoop Cluster eingerichtet. Diese Anletung beschreibt die Einrichtung des Clusters, sowie die Konfiguration.
 
+## Aufbau des Clusters
+Das nachfolgende Bild veranschaulicht den Aufbau des Hadoop Clusters und wie darauf zugegriffen wird.
+
+![Diagramm Netzwerkaufbau](aufbau.png "Diagramm Netzwerkaufbau")
 
 ## Hardware
 Das Cluster besteht aus drei Nodes welche in drei eigenen virtuellen Maschinen laufen. Diese teilen sich auf in ein Master Node und zwei Slave Nodes. Das Hostsystem hat folgende Systemeigenschaften:
@@ -254,8 +259,13 @@ export YARN_NODEMANAGER_OPTS="--add-modules java.activation"
   - ```hdfs dfs -put etc/hadoop input```
 
 ### Cluster
+Nachdem die Einrichtung eines Single Nodes erfolgreich abgeschlossen wurde, wurde die Maschine zwei Mal geklont. Dementsprechend müssen die Klone angepasst werden. Es müssen eine neue MAC Adresse für die virtuelle Netzwerkkarte, sowie ein neuer Hostname vergeben werden.
+
+#### /etc/hostname
+Um den Namen der Maschine zu ändern, kann man entweder das Programm ```hostnamectl``` in der Kommandozeile verwenden, oder man passt die Hostname-Datei an und ändert den Namen. In diesem Fall müssen Die Namen auf ```slave1``` und ```slave2``` geändert werden.
+
 #### /etc/hosts
-- Adressen für Master und Slaves angeben
+Die Hosts-Datei beinhaltet die Informationen über verwendeten Routen zu den unterschiedlichen Rechnern im Netzwerk.
 
 ```bash
 192.168.178.100 master
